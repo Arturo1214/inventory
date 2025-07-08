@@ -7,6 +7,7 @@ import com.example.auth_service.service.errors.RoleNotFoundException;
 import com.example.auth_service.service.errors.UserExistException;
 import com.example.auth_service.web.rest.errors.BaseAlertException;
 import jakarta.validation.Valid;
+import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
@@ -38,7 +39,7 @@ public class UserController {
     }
     @PreAuthorize("hasAuthority('ADMIN')")
     @GetMapping
-    public ResponseEntity<Page<User>> list(Pageable pageable) {
+    public ResponseEntity<Page<User>> list(@ParameterObject Pageable pageable) {
         return ResponseEntity.ok(userService.findAll(pageable));
     }
 }
