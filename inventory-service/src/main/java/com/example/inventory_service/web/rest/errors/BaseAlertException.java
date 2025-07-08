@@ -1,4 +1,4 @@
-package com.example.auth_service.web.rest.errors;
+package com.example.inventory_service.web.rest.errors;
 
 import org.zalando.problem.AbstractThrowableProblem;
 import org.zalando.problem.Status;

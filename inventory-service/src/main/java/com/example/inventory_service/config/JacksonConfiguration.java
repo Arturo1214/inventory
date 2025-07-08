@@ -1,4 +1,4 @@
-package com.example.auth_service.config;
+package com.example.inventory_service.config;
 
 import com.fasterxml.jackson.datatype.jdk8.Jdk8Module;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;

@@ -2,14 +2,19 @@ package com.example.inventory_service.service.impl;
 
 import com.example.inventory_service.domain.Order;
 import com.example.inventory_service.domain.OrderItem;
+import com.example.inventory_service.domain.Product;
 import com.example.inventory_service.repository.OrderRepository;
 import com.example.inventory_service.repository.ProductRepository;
 import com.example.inventory_service.service.OrderService;
 import com.example.inventory_service.service.StockValidator;
 import com.example.inventory_service.service.dto.CreateOrderDto;
+import com.example.inventory_service.service.errors.ProductNotFound;
+import com.example.inventory_service.service.errors.StockError;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import java.util.stream.Collectors;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @Service
 @Transactional
@@ -25,21 +30,29 @@ public class OrderServiceImpl implements OrderService {
     }
 
     @Override
-    public Order createOrder(CreateOrderDto dto) {
+    public Order createOrder(CreateOrderDto dto) throws ProductNotFound, StockError {
         Order order = new Order();
-        order.setItems(dto.getItems().stream().map(i -> {
-            var prod = productRepo.findById(i.getProductId()).orElseThrow();
-            validator.validate(prod, i.getQuantity());
-            prod.setStock(prod.getStock() - i.getQuantity());
+        List<OrderItem> items = new ArrayList<>();
+
+        for (var itemDto : dto.getItems()) {
+            Product prod = productRepo.findById(itemDto.getProductId())
+                    .orElseThrow(() -> new ProductNotFound(itemDto.getProductId()));
+
+            validator.validate(prod, itemDto.getQuantity());
+
+            prod.setStock(prod.getStock() - itemDto.getQuantity());
 
             OrderItem item = new OrderItem();
             item.setOrder(order);
             item.setProduct(prod);
-            item.setQuantity(i.getQuantity());
+            item.setQuantity(itemDto.getQuantity());
             item.setUnitPrice(prod.getPrice());
-            return item;
-        }).collect(Collectors.toList()));
 
+            items.add(item);
+        }
+
+        order.setItems(items);
         return orderRepo.save(order);
     }
+
 }

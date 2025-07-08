@@ -1,24 +1,17 @@
-package bo.vulcan.krtigomsreport.web.rest.errors;
+package com.example.auth_service.web.rest.errors;
 
-import static bo.vulcan.krtigomsreport.web.rest.errors.ErrorConstants.ENTITY_NOT_FOUND;
-
-import bo.vulcan.krtigomsreport.web.rest.errors.my.BadRequestException;
-import bo.vulcan.krtigomsreport.web.rest.errors.my.NotFoundException;
-import bo.vulcan.krtigomsreport.web.rest.util.HeaderUtil;
 
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.ConcurrencyFailureException;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.authorization.AuthorizationDeniedException;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.context.request.NativeWebRequest;
-import org.zalando.problem.DefaultProblem;
-import org.zalando.problem.Problem;
-import org.zalando.problem.ProblemBuilder;
-import org.zalando.problem.Status;
+import org.zalando.problem.*;
 import org.zalando.problem.spring.web.advice.ProblemHandling;
 import org.zalando.problem.violations.ConstraintViolationProblem;
 
@@ -59,13 +52,13 @@ public class ExceptionTranslator implements ProblemHandling {
             .withStatus(problem.getStatus())
             .with(PATH_KEY, getPathNativeRequest(request));
 
-        if (problem instanceof ConstraintViolationProblem) {
+        if (problem instanceof ConstraintViolationProblem constraintViolationProblem) {
             builder
-                .with(VIOLATIONS_KEY, ((ConstraintViolationProblem) problem).getViolations())
-                .with(MESSAGE_KEY, ErrorConstants.ERR_VALIDATION);
+                .with(VIOLATIONS_KEY, constraintViolationProblem.getViolations())
+                .with(MESSAGE_KEY, "ERR_VALIDATION");
         } else {
             builder
-                .with(ERROR_KEY, ErrorConstants.INTERNAL_SERVER_ERROR)
+                .with(ERROR_KEY, "INTERNAL_SERVER_ERROR")
                 .with(MESSAGE_KEY, problem.getDetail());
             problem.getParameters().forEach(builder::with);
         }
@@ -81,7 +74,7 @@ public class ExceptionTranslator implements ProblemHandling {
 
         Problem problem = Problem.builder()
             .withTitle("Method argument not valid")
-            .with(MESSAGE_KEY, ErrorConstants.ERR_VALIDATION)
+            .with(MESSAGE_KEY, "ERR_VALIDATION")
             .with(FIELD_ERRORS_KEY, fieldErrors)
             .withStatus(defaultConstraintViolationStatus())
             .build();
@@ -93,7 +86,7 @@ public class ExceptionTranslator implements ProblemHandling {
     @ExceptionHandler
     public ResponseEntity<Problem> handleNoSuchElementException(NoSuchElementException ex, NativeWebRequest request) {
         Problem problem = Problem.builder()
-            .with(MESSAGE_KEY, ENTITY_NOT_FOUND)
+            .with(MESSAGE_KEY, "ENTITY_NOT_FOUND")
             .withStatus(Status.NOT_FOUND)
             .build();
 
@@ -102,11 +95,11 @@ public class ExceptionTranslator implements ProblemHandling {
     }
 
     @ExceptionHandler
-    public ResponseEntity<Problem> handleBadRequestAlertException(BadRequestAlertException ex, NativeWebRequest request) {
+    public ResponseEntity<Problem> handleBadRequestAlertException(BaseAlertException ex, NativeWebRequest request) {
         String  message = ex.getMessage();
         ProblemBuilder builder = Problem.builder()
             .with(ERROR_KEY, ex.getErrorKey())
-            .withStatus(Status.BAD_REQUEST)
+            .withStatus(ex.getStatus())
             .with(MESSAGE_KEY, message)
             .with(PATH_KEY, getPathNativeRequest(request));
         log.debug("PROBLEM body handleBadRequestAlertException");
@@ -117,37 +110,9 @@ public class ExceptionTranslator implements ProblemHandling {
     public ResponseEntity<Problem> handleConcurrencyFailure(ConcurrencyFailureException ex, NativeWebRequest request) {
         Problem problem = Problem.builder()
             .withStatus(Status.CONFLICT)
-            .with(MESSAGE_KEY, ErrorConstants.ERR_CONCURRENCY_FAILURE)
+            .with(MESSAGE_KEY, "ERR_CONCURRENCY_FAILURE")
             .build();
         return create(ex, problem, request);
-    }
-
-    /* Additional methods */
-
-    @ExceptionHandler(BadRequestException.class)
-    public ResponseEntity<Problem> handleBadRequestException(BadRequestException ex, NativeWebRequest request) {
-        Problem problem = Problem.builder()
-            .withStatus(ex.getStatus())
-            .with(PATH_KEY,getPathNativeRequest(request))
-            .with(ERROR_KEY, ex.getErrorKey())
-            .withStatus(Status.BAD_REQUEST)
-            .with(MESSAGE_KEY, ex.getMessage())
-            .withTitle(ex.getTitle())
-            .build();
-        return create(ex, problem, request, HeaderUtil.createFailureAlert(ex.getErrorKey(), ex.getMessage()));
-    }
-
-    @ExceptionHandler(NotFoundException.class)
-    public ResponseEntity<Problem> handleNotFoundException(NotFoundException ex, NativeWebRequest request) {
-        Problem problem = Problem.builder()
-            .withStatus(ex.getStatus())
-            .with(PATH_KEY, getPathNativeRequest(request))
-            .with(ERROR_KEY, ErrorConstants.ENTITY_NOT_FOUND)
-            .withStatus(Status.NOT_FOUND)
-            .with(MESSAGE_KEY, "Not found entity.")
-            .withTitle(ex.getTitle())
-            .build();
-        return create(ex, problem, request, HeaderUtil.createFailureAlert(null, ex.getErrorKey(), ex.getMessage()));
     }
 
     private String getPathNativeRequest(NativeWebRequest request) {

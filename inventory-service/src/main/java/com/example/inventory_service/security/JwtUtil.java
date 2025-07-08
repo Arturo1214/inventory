@@ -52,12 +52,11 @@ public class JwtUtil {
         return claims.getSubject();
     }
 
-    public String getRole(String token) {
-        Claims claims = Jwts.parserBuilder()
+    public Claims getClaims(String token) {
+        return Jwts.parserBuilder()
                 .setSigningKey(key)
                 .build()
                 .parseClaimsJws(token)
                 .getBody();
-        return (String) claims.get("role");
     }
 }

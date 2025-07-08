@@ -49,18 +49,18 @@ Además, incluye un `docker-compose.yml` en la raíz para orquestar los servicio
    ```bash
    # Auth Service
    cd auth-service
-   mvn clean package
-   mvn spring-boot:run
+   ./gradlew build
+   ./gradlew
 
    # Inventory Service
    cd ../inventory-service
-   mvn clean package
-   mvn spring-boot:run
+   ./gradlew build
+   ./gradlew
 
    # API Gateway
    cd ../api-gateway
-   mvn clean package
-   mvn spring-boot:run
+   ./gradlew build
+   ./gradlew
    ```
 
 4. **Verificar**:
@@ -74,15 +74,30 @@ Además, incluye un `docker-compose.yml` en la raíz para orquestar los servicio
 ## Ejecución con Docker
 
 1. Asegúrate de tener Docker y Docker Compose instalados.
-2. En la raíz del repositorio, construye y levanta los contenedores:
+2. Compilacion de proyecto
+   ```bash
+   # Auth Service
+   cd auth-service
+   ./gradlew build
+   
+   # Inventory Service
+   cd ../inventory-service
+   ./gradlew build
+
+   # API Gateway
+   cd ../api-gateway
+   ./gradlew build
+   
+   ```
+3. En la raíz del repositorio, construye y levanta los contenedores:
    ```bash
    docker-compose build
    docker-compose up -d
    ```
-3. El `docker-compose.yml` define:
+4. El `docker-compose.yml` define:
    - Contenedores `auth-db` y `inventory-db` con Postgres.
    - Servicios `auth-service`, `inventory-service` y `api-gateway`.
-4. **Endpoints**:
+5. **Endpoints**:
    - Auth:       `http://localhost:8081/auth/login`
    - Inventory:  `http://localhost:8082/api/products`
    - Gateway:    `http://localhost:8080/api/products`

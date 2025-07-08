@@ -1,17 +1,19 @@
-package com.example.auth_service.web.rest.errors;
+package com.example.inventory_service.web.rest.errors;
 
 
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.ConcurrencyFailureException;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.authorization.AuthorizationDeniedException;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.context.request.NativeWebRequest;
-import org.zalando.problem.*;
+import org.zalando.problem.DefaultProblem;
+import org.zalando.problem.Problem;
+import org.zalando.problem.ProblemBuilder;
+import org.zalando.problem.Status;
 import org.zalando.problem.spring.web.advice.ProblemHandling;
 import org.zalando.problem.violations.ConstraintViolationProblem;
 

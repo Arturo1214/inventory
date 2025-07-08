@@ -5,7 +5,7 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
 
-@Getter @Setter @ToString
+@Getter @Setter @ToString(exclude = {"password"})
 public class LoginRequest {
     @NotNull
     private String username;

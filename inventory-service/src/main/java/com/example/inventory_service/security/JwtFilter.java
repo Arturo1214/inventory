@@ -1,10 +1,12 @@
 package com.example.inventory_service.security;
 
+import io.jsonwebtoken.Claims;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.util.StringUtils;
@@ -24,9 +26,13 @@ public class JwtFilter extends OncePerRequestFilter {
         if (StringUtils.hasText(header) && header.startsWith("Bearer ")) {
             String token = header.substring(7);
             if (jwtUtil.validateToken(token)) {
-                String user = jwtUtil.getUsername(token);
+                Claims claims = jwtUtil.getClaims(token);
+                String username = claims.getSubject();
+                String role = claims.get("role", String.class);  // p. ej. "ADMIN"
+                List<SimpleGrantedAuthority> authorities =
+                        List.of(new SimpleGrantedAuthority(role));
                 UsernamePasswordAuthenticationToken auth =
-                        new UsernamePasswordAuthenticationToken(user, null, List.of());
+                        new UsernamePasswordAuthenticationToken(username, null, authorities);
                 auth.setDetails(new WebAuthenticationDetailsSource().buildDetails(req));
                 SecurityContextHolder.getContext().setAuthentication(auth);
             }

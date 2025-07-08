@@ -1,4 +1,4 @@
-package com.example.auth_service.config;
+package com.example.inventory_service.config;
 
 import io.swagger.v3.oas.models.Components;
 import io.swagger.v3.oas.models.OpenAPI;

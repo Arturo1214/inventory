@@ -1,4 +1,4 @@
-package bo.vulcan.krtigomsreport.web.rest.errors;
+package com.example.auth_service.web.rest.errors;
 
 import java.io.Serializable;
 
