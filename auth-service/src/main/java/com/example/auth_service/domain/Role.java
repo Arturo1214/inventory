@@ -14,7 +14,7 @@ import java.util.Objects;
 
 @Getter @Setter @ToString
 @Entity
-@Table(name = "roles")
+@Table(name = "auth_role")
 public class Role {
 
     @NotNull
