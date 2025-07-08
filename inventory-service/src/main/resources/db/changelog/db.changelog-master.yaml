@@ -8,7 +8,7 @@ databaseChangeLog:
             columns:
               - column:
                   name: id
-                  type: BIGINT
+                  type: BIGSERIAL
                   constraints:
                     primaryKey: true
                     nullable: false
@@ -32,11 +32,17 @@ databaseChangeLog:
                   constraints:
                     nullable: false
               - column:
-                  name: created_at
-                  type: TIMESTAMP
-                  defaultValueComputed: CURRENT_TIMESTAMP
+                  name: created_by
+                  type: VARCHAR(50)
               - column:
-                  name: updated_at
+                  name: created_date
+                  type: TIMESTAMP
+                  defaultValueComputed:
+              - column:
+                  name: last_modified_by
+                  type: VARCHAR(50)
+              - column:
+                  name: last_modified_date
                   type: TIMESTAMP
                   defaultValueComputed: CURRENT_TIMESTAMP
         - createTable:
@@ -44,13 +50,23 @@ databaseChangeLog:
             columns:
               - column:
                   name: id
-                  type: BIGINT
+                  type: BIGSERIAL
                   constraints:
                     primaryKey: true
                     nullable: false
                     autoIncrement: true
               - column:
-                  name: created_at
+                  name: created_by
+                  type: VARCHAR(50)
+              - column:
+                  name: created_date
+                  type: TIMESTAMP
+                  defaultValueComputed:
+              - column:
+                  name: last_modified_by
+                  type: VARCHAR(50)
+              - column:
+                  name: last_modified_date
                   type: TIMESTAMP
                   defaultValueComputed: CURRENT_TIMESTAMP
         - createTable:
@@ -58,7 +74,7 @@ databaseChangeLog:
             columns:
               - column:
                   name: id
-                  type: BIGINT
+                  type: BIGSERIAL
                   constraints:
                     primaryKey: true
                     nullable: false
@@ -83,13 +99,91 @@ databaseChangeLog:
                   type: DECIMAL(10,2)
                   constraints:
                     nullable: false
+              - column:
+                  name: created_by
+                  type: VARCHAR(50)
+              - column:
+                  name: created_date
+                  type: TIMESTAMP
+                  defaultValueComputed:
+              - column:
+                  name: last_modified_by
+                  type: VARCHAR(50)
+              - column:
+                  name: last_modified_date
+                  type: TIMESTAMP
+                  defaultValueComputed: CURRENT_TIMESTAMP
         - addForeignKeyConstraint:
+            constraintName: fk_order_items_order
             baseTableName: order_items
             baseColumnNames: order_id
             referencedTableName: orders
             referencedColumnNames: id
         - addForeignKeyConstraint:
+            constraintName: fk_order_items_product
             baseTableName: order_items
             baseColumnNames: product_id
             referencedTableName: products
             referencedColumnNames: id
+
+  - changeSet:
+      id: 002
+      author: aherrera
+      comment: Insertar productos por defecto
+      changes:
+        - insert:
+            tableName: products
+            columns:
+              - column:
+                  name: name
+                  value: "Laptop Pro"
+              - column:
+                  name: description
+                  value: "Portátil de alta gama"
+              - column:
+                  name: price
+                  valueNumeric: 1200.00
+              - column:
+                  name: stock
+                  valueNumeric: 15
+              - column:
+                  name: created_by
+                  value: "system"
+
+        - insert:
+            tableName: products
+            columns:
+              - column:
+                  name: name
+                  value: "Smartphone X"
+              - column:
+                  name: description
+                  value: "Teléfono inteligente moderno"
+              - column:
+                  name: price
+                  valueNumeric: 800.00
+              - column:
+                  name: stock
+                  valueNumeric: 30
+              - column:
+                  name: created_by
+                  value: "system"
+
+        - insert:
+            tableName: products
+            columns:
+              - column:
+                  name: name
+                  value: "Auriculares Bluetooth"
+              - column:
+                  name: description
+                  value: "Auriculares inalámbricos"
+              - column:
+                  name: price
+                  valueNumeric: 150.00
+              - column:
+                  name: stock
+                  valueNumeric: 50
+              - column:
+                  name: created_by
+                  value: "system"

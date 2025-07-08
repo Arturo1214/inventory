@@ -12,6 +12,7 @@ import java.util.Objects;
 @Entity
 @Table(name = "products")
 public class Product extends Auditable {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
